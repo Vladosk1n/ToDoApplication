@@ -18,9 +18,7 @@ public class TaskServiceImpl implements ITaskService {
 
     @Override
     public void saveTask(Task task) throws AuthenticationException, TaskAlreadyExistsException {
-        if (task.getUserId() == null) {
-            throw new AuthenticationException();
-        }
+        userAuthentication(task.getUserId());
 
         if (checkIfTaskAlreadyExists(task.getTaskId())) {
             throw new TaskAlreadyExistsException();
@@ -31,9 +29,7 @@ public class TaskServiceImpl implements ITaskService {
 
     @Override
     public void updateTask(Task task) throws AuthenticationException, TaskNotFoundException {
-        if (task.getUserId() == null) {
-            throw new AuthenticationException();
-        }
+        userAuthentication(task.getUserId());
 
         if (!checkIfTaskAlreadyExists(task.getTaskId())) {
             throw new TaskNotFoundException();
@@ -43,27 +39,30 @@ public class TaskServiceImpl implements ITaskService {
 
     @Override
     public Map<Integer, Task> getAllTasks(Long userId) throws AuthenticationException {
-        if (userId == null) {
-            throw new AuthenticationException();
-        }
+        userAuthentication(userId);
 
         return taskDao.getAllTasks();
     }
 
     @Override
     public void deleteTask(Long taskId, Long userId) throws AuthenticationException, TaskNotFoundException {
-        if (userId == null) {
-            throw new AuthenticationException();
-        }
+        userAuthentication(userId);
 
         if (!checkIfTaskAlreadyExists(taskId)) {
             throw new TaskNotFoundException();
         }
+
         taskDao.deleteTask(Math.toIntExact(taskId));
     }
 
     private boolean checkIfTaskAlreadyExists(Long taskId) {
         return taskDao.getOneTask(Math.toIntExact(taskId)) != null;
+    }
+
+    private void userAuthentication(Long userId) throws AuthenticationException {
+        if (userId == null) {
+            throw new AuthenticationException();
+        }
     }
 
 

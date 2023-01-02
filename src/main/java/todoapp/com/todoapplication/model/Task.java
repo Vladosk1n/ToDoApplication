@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class Task implements Serializable {
 
-//    private static final long serialVersionUID = -7817224776021728682L;
+    private static final long serialVersionUID = -7817224776021728682L;
 
     private Long taskId;
     private Long userId;
