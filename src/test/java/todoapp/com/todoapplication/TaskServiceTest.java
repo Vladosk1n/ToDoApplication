@@ -37,6 +37,7 @@ class TaskServiceTest {
         task.setTaskState(TaskState.TODO);
         task.setUserId(1L);
         task.setDescription("Task description 1.");
+
         task.setDeadline(LocalDate.now());
 
         taskDao.deleteTask(Math.toIntExact(task.getTaskId())); //remove task in case it already exists in redis
