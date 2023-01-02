@@ -32,7 +32,7 @@ public class TaskController {
         } catch (TaskAlreadyExistsException e) {
             return new ResponseEntity<>("Task with this ID already exists.", HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>("Task was successfully created.", HttpStatus.OK);
+        return new ResponseEntity<>("Task was successfully created.", HttpStatus.CREATED);
     }
 
     @GetMapping("/list")

@@ -17,7 +17,6 @@ public class TaskDaoImpl implements ITaskDao {
 
     @Override
     public void saveTask(Task task) {
-        //creates one record in Redis DB if record with that Id is not present
         hashOperations.putIfAbsent(hashReference, Math.toIntExact(task.getTaskId()), task);
     }
 
