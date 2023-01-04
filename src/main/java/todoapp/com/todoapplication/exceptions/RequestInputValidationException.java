@@ -1,6 +1,6 @@
 package todoapp.com.todoapplication.exceptions;
 
-public class RequestInputValidationException extends Exception {
+public class RequestInputValidationException extends RuntimeException {
 
     @Override
     public String getMessage() {

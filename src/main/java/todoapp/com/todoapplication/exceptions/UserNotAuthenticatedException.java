@@ -1,6 +1,6 @@
 package todoapp.com.todoapplication.exceptions;
 
-public class UserNotAuthenticatedException extends Exception {
+public class UserNotAuthenticatedException extends RuntimeException {
 
     @Override
     public String getMessage() {

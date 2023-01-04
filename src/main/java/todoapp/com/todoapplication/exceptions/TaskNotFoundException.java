@@ -1,6 +1,6 @@
 package todoapp.com.todoapplication.exceptions;
 
-public class TaskNotFoundException extends Exception {
+public class TaskNotFoundException extends RuntimeException {
 
     @Override
     public String getMessage() {

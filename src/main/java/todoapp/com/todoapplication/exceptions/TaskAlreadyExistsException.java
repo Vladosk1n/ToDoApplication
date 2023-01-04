@@ -1,6 +1,6 @@
 package todoapp.com.todoapplication.exceptions;
 
-public class TaskAlreadyExistsException extends Exception {
+public class TaskAlreadyExistsException extends RuntimeException {
 
     @Override
     public String getMessage() {

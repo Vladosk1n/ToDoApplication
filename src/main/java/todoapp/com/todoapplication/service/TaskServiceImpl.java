@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import todoapp.com.todoapplication.dao.ITaskDao;
-import todoapp.com.todoapplication.exceptions.RequestInputValidationException;
-import todoapp.com.todoapplication.exceptions.TaskAlreadyExistsException;
-import todoapp.com.todoapplication.exceptions.TaskNotFoundException;
-import todoapp.com.todoapplication.exceptions.UserNotAuthenticatedException;
+import todoapp.com.todoapplication.exceptions.*;
 import todoapp.com.todoapplication.model.Task;
 
 @Service
@@ -21,7 +18,7 @@ public class TaskServiceImpl implements ITaskService {
     ObjectMapper objectMapper;
 
     @Override
-    public String saveTask(Task task) throws UserNotAuthenticatedException, TaskAlreadyExistsException, RequestInputValidationException, JsonProcessingException {
+    public String saveTask(Task task) throws UserNotAuthenticatedException, TaskAlreadyExistsException, RequestInputValidationException, MappingProblemException {
         userAuthentication(task.getUserId()); //authenticating user
 
         if (!validateTask(task)) { //validating request input
@@ -35,11 +32,15 @@ public class TaskServiceImpl implements ITaskService {
         // other business logic such as validation if deadline >= current date can be added here
 
         //returning saved task wrapped in json string
-        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(taskDao.saveTask(task));
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(taskDao.saveTask(task));
+        } catch (JsonProcessingException e) {
+            throw new MappingProblemException();
+        }
     }
 
     @Override
-    public String updateTask(Task task) throws UserNotAuthenticatedException, TaskNotFoundException, RequestInputValidationException, JsonProcessingException {
+    public String updateTask(Task task) throws UserNotAuthenticatedException, TaskNotFoundException, RequestInputValidationException, MappingProblemException {
         userAuthentication(task.getUserId());
 
         if (!validateTask(task)) {
@@ -49,15 +50,24 @@ public class TaskServiceImpl implements ITaskService {
         if (!checkIfTaskAlreadyExists(task.getTaskId())) {
             throw new TaskNotFoundException();
         }
-        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(taskDao.updateTask(task));
+
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(taskDao.updateTask(task));
+        } catch (JsonProcessingException e) {
+            throw new MappingProblemException();
+        }
     }
 
     @Override
-    public String getAllTasks(Long userId) throws UserNotAuthenticatedException, JsonProcessingException {
+    public String getAllTasks(Long userId) throws UserNotAuthenticatedException, MappingProblemException {
         userAuthentication(userId);
 
         objectMapper.findAndRegisterModules(); //required to register the LocalDate datatype support
-        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(taskDao.getAllTasks());
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(taskDao.getAllTasks());
+        } catch (JsonProcessingException e) {
+            throw new MappingProblemException();
+        }
     }
 
     @Override

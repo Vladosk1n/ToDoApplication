@@ -1,10 +1,6 @@
 package todoapp.com.todoapplication.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import todoapp.com.todoapplication.exceptions.RequestInputValidationException;
-import todoapp.com.todoapplication.exceptions.TaskAlreadyExistsException;
-import todoapp.com.todoapplication.exceptions.TaskNotFoundException;
-import todoapp.com.todoapplication.exceptions.UserNotAuthenticatedException;
+import todoapp.com.todoapplication.exceptions.*;
 import todoapp.com.todoapplication.model.Task;
 
 /**
@@ -19,9 +15,10 @@ public interface ITaskService {
      * @return updated task
      * @throws UserNotAuthenticatedException   if userId is missing in request
      * @throws TaskAlreadyExistsException      if task with same taskId already exists
-     * @throws RequestInputValidationException request is invalid or JSON can't be parsed
+     * @throws RequestInputValidationException request is invalid
+     * @throws MappingProblemException         if JSON mapping has failed
      */
-    String saveTask(Task task) throws UserNotAuthenticatedException, TaskAlreadyExistsException, RequestInputValidationException, JsonProcessingException;
+    String saveTask(Task task) throws UserNotAuthenticatedException, TaskAlreadyExistsException, RequestInputValidationException, MappingProblemException;
 
     /**
      * update Task in repository
@@ -32,7 +29,7 @@ public interface ITaskService {
      * @throws TaskNotFoundException           if task with requested taskId doesn't exist
      * @throws RequestInputValidationException request is invalid or JSON can't be parsed
      */
-    String updateTask(Task task) throws UserNotAuthenticatedException, TaskNotFoundException, RequestInputValidationException, JsonProcessingException;
+    String updateTask(Task task) throws UserNotAuthenticatedException, TaskNotFoundException, RequestInputValidationException, MappingProblemException;
 
     /**
      * return all Tasks from repository
@@ -40,9 +37,9 @@ public interface ITaskService {
      * @param userId user ID to authenticate user
      * @return list of all tasks
      * @throws UserNotAuthenticatedException if userId is missing in request
-     * @throws JsonProcessingException       if response JSON can't be parsed
+     * @throws MappingProblemException       if response JSON can't be parsed
      */
-    String getAllTasks(Long userId) throws UserNotAuthenticatedException, JsonProcessingException;
+    String getAllTasks(Long userId) throws UserNotAuthenticatedException, MappingProblemException;
 
     /**
      * delete Task from repository

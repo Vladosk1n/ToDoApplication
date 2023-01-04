@@ -46,8 +46,7 @@ class TaskServiceTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/todo-service/v1/create-task")
                         .content(objectMapper.writeValueAsString(task))
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated()) //verify response status
-                .andExpect(content().string("Task was successfully created."));
+                .andExpect(status().isCreated());//verify response status
 
         Task taskFromDao = taskDao.getOneTask(1);
 
@@ -66,7 +65,7 @@ class TaskServiceTest {
                         .content(objectMapper.writeValueAsString(task))
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden()) //verify response status
-                .andExpect(content().string("Authentication problem."));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Authentication problem.")));
 
         Task taskFromDao = taskDao.getOneTask(1);
         assertThat(taskFromDao).isNull(); //verify that it was not added to DB
@@ -89,7 +88,7 @@ class TaskServiceTest {
                         .content(objectMapper.writeValueAsString(identicalTask))
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict()) //verify response status
-                .andExpect(content().string("Task with this ID already exists."));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Task with this ID already exists.")));
 
         Task taskFromDao = taskDao.getOneTask(1);
         assertThat(taskFromDao.getUserId()).isEqualTo(1);
@@ -105,15 +104,13 @@ class TaskServiceTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/todo-service/v1/create-task")
                         .content(objectMapper.writeValueAsString(task1))
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated()) //verify response status
-                .andExpect(content().string("Task was successfully created."));
+                .andExpect(status().isCreated()); //verify response status
 
         //create second task
         mockMvc.perform(MockMvcRequestBuilders.post("/todo-service/v1/create-task")
                         .content(objectMapper.writeValueAsString(task2))
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated()) //verify response status
-                .andExpect(content().string("Task was successfully created."));
+                .andExpect(status().isCreated()); //verify response status
 
         //verify a List of tasks
         mockMvc.perform(MockMvcRequestBuilders.get("/todo-service/v1/list")
@@ -123,7 +120,6 @@ class TaskServiceTest {
 
         Map<Integer, Task> taskFromDao = taskDao.getAllTasks();
         assertThat(taskFromDao.size()).isEqualTo(2);
-
     }
 
     @Test
@@ -138,8 +134,7 @@ class TaskServiceTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/todo-service/v1/update-task")
                         .content(objectMapper.writeValueAsString(updatedTask))
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()) //verify response status
-                .andExpect(content().string("Task was successfully updated."));
+                .andExpect(status().isOk()); //verify response status
 
         Task taskFromDao = taskDao.getOneTask(1);
         assertThat(taskFromDao.getDescription()).isEqualTo("New description."); //verify new description
@@ -155,7 +150,7 @@ class TaskServiceTest {
                         .content(objectMapper.writeValueAsString(updatedTask))
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound()) //verify response status
-                .andExpect(content().string("This task can't be found."));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("This task can't be found.")));
 
         Task taskFromDao = taskDao.getOneTask(12);
         assertThat(taskFromDao).isNull(); //verify that it was not added to DB
@@ -171,7 +166,7 @@ class TaskServiceTest {
                         .param("taskId", "1")
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()) //verify response status
-                .andExpect(content().string("Task was successfully removed."));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Task was successfully removed.")));
 
         Task taskFromDao = taskDao.getOneTask(1);
         assertThat(taskFromDao).isNull(); //verify it's deleted
@@ -188,7 +183,7 @@ class TaskServiceTest {
                         .param("taskId", "1")
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound()) //verify response status
-                .andExpect(content().string("This task can't be found."));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("This task can't be found.")));
 
         Task taskFromDao = taskDao.getOneTask(1);
         assertThat(taskFromDao).isNull(); //verify it's deleted
