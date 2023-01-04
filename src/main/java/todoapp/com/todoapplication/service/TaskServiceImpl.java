@@ -1,14 +1,15 @@
 package todoapp.com.todoapplication.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import todoapp.com.todoapplication.dao.ITaskDao;
+import todoapp.com.todoapplication.exceptions.RequestInputValidationException;
 import todoapp.com.todoapplication.exceptions.TaskAlreadyExistsException;
 import todoapp.com.todoapplication.exceptions.TaskNotFoundException;
+import todoapp.com.todoapplication.exceptions.UserNotAuthenticatedException;
 import todoapp.com.todoapplication.model.Task;
-
-import javax.naming.AuthenticationException;
-import java.util.Map;
 
 @Service
 public class TaskServiceImpl implements ITaskService {
@@ -16,36 +17,51 @@ public class TaskServiceImpl implements ITaskService {
     @Autowired
     private ITaskDao taskDao;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @Override
-    public void saveTask(Task task) throws AuthenticationException, TaskAlreadyExistsException {
-        userAuthentication(task.getUserId());
+    public String saveTask(Task task) throws UserNotAuthenticatedException, TaskAlreadyExistsException, RequestInputValidationException, JsonProcessingException {
+        userAuthentication(task.getUserId()); //authenticating user
+
+        if (!validateTask(task)) { //validating request input
+            throw new RequestInputValidationException();
+        }
 
         if (checkIfTaskAlreadyExists(task.getTaskId())) {
             throw new TaskAlreadyExistsException();
         }
 
-        taskDao.saveTask(task);
+        // other business logic such as validation if deadline >= current date can be added here
+
+        //returning saved task wrapped in json string
+        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(taskDao.saveTask(task));
     }
 
     @Override
-    public void updateTask(Task task) throws AuthenticationException, TaskNotFoundException {
+    public String updateTask(Task task) throws UserNotAuthenticatedException, TaskNotFoundException, RequestInputValidationException, JsonProcessingException {
         userAuthentication(task.getUserId());
+
+        if (!validateTask(task)) {
+            throw new RequestInputValidationException();
+        }
 
         if (!checkIfTaskAlreadyExists(task.getTaskId())) {
             throw new TaskNotFoundException();
         }
-        taskDao.updateTask(task);
+        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(taskDao.updateTask(task));
     }
 
     @Override
-    public Map<Integer, Task> getAllTasks(Long userId) throws AuthenticationException {
+    public String getAllTasks(Long userId) throws UserNotAuthenticatedException, JsonProcessingException {
         userAuthentication(userId);
 
-        return taskDao.getAllTasks();
+        objectMapper.findAndRegisterModules(); //required to register the LocalDate datatype support
+        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(taskDao.getAllTasks());
     }
 
     @Override
-    public void deleteTask(Long taskId, Long userId) throws AuthenticationException, TaskNotFoundException {
+    public void deleteTask(Long taskId, Long userId) throws UserNotAuthenticatedException, TaskNotFoundException {
         userAuthentication(userId);
 
         if (!checkIfTaskAlreadyExists(taskId)) {
@@ -59,11 +75,18 @@ public class TaskServiceImpl implements ITaskService {
         return taskDao.getOneTask(Math.toIntExact(taskId)) != null;
     }
 
-    private void userAuthentication(Long userId) throws AuthenticationException {
+    private void userAuthentication(Long userId) throws UserNotAuthenticatedException {
         if (userId == null) {
-            throw new AuthenticationException();
+            throw new UserNotAuthenticatedException();
         }
     }
 
+    private boolean validateTask(Task todoTask) {
+        if (todoTask == null || todoTask.getTaskId() == null || todoTask.getTaskState() == null
+                || todoTask.getDescription() == null || todoTask.getDeadline() == null) {
+            return false;
+        }
+        return true;
+    }
 
 }

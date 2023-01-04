@@ -16,6 +16,14 @@ public class Task implements Serializable {
     private LocalDate deadline;
     private TaskState taskState;
 
+    public Task(Long taskId, Long userId, String description, LocalDate deadline, TaskState taskState) {
+        this.taskId = taskId;
+        this.userId = userId;
+        this.description = description;
+        this.deadline = deadline;
+        this.taskState = taskState;
+    }
+
     public Long getTaskId() {
         return taskId;
     }

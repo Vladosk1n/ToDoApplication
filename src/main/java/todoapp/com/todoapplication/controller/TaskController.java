@@ -1,16 +1,16 @@
 package todoapp.com.todoapplication.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import todoapp.com.todoapplication.exceptions.RequestInputValidationException;
 import todoapp.com.todoapplication.exceptions.TaskAlreadyExistsException;
 import todoapp.com.todoapplication.exceptions.TaskNotFoundException;
+import todoapp.com.todoapplication.exceptions.UserNotAuthenticatedException;
 import todoapp.com.todoapplication.model.Task;
 import todoapp.com.todoapplication.service.ITaskService;
-
-import javax.naming.AuthenticationException;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/todo-service/v1")
@@ -21,63 +21,51 @@ public class TaskController {
 
     @PostMapping("/create-task")
     public ResponseEntity<String> createTask(@RequestBody Task todoTask) {
-        if (!validateTask(todoTask)) {
-            return new ResponseEntity<>("TODO task is incomplete.", HttpStatus.BAD_REQUEST);
-        }
-
         try {
-            taskService.saveTask(todoTask);
-        } catch (AuthenticationException e) {
-            return new ResponseEntity<>("Authentication problem.", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(taskService.saveTask(todoTask), HttpStatus.CREATED);
+        } catch (RequestInputValidationException | JsonProcessingException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (UserNotAuthenticatedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (TaskAlreadyExistsException e) {
-            return new ResponseEntity<>("Task with this ID already exists.", HttpStatus.CONFLICT);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>("Task was successfully created.", HttpStatus.CREATED);
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Map<Integer, Task>> retrieveAllTasks(@RequestParam Long userId) {
+    public ResponseEntity<String> retrieveAllTasks(@RequestParam Long userId) {
         try {
             return ResponseEntity.ok((taskService.getAllTasks(userId)));
-        } catch (AuthenticationException e) {
-            throw new RuntimeException(e);
+        } catch (UserNotAuthenticatedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (JsonProcessingException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/update-task")
     public ResponseEntity<String> updateTask(@RequestBody Task todoTask) {
-        if (!validateTask(todoTask)) {
-            return new ResponseEntity<>("TODO task is incomplete.", HttpStatus.BAD_REQUEST);
-        }
-
         try {
-            taskService.updateTask(todoTask);
-        } catch (AuthenticationException e) {
-            return new ResponseEntity<>("Authentication problem.", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(taskService.updateTask(todoTask), HttpStatus.OK);
+        } catch (UserNotAuthenticatedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (TaskNotFoundException e) {
-            return new ResponseEntity<>("Task to update does not exist.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (RequestInputValidationException | JsonProcessingException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>("Task was successfully updated.", HttpStatus.OK);
     }
 
     @DeleteMapping("/remove-task")
     public ResponseEntity<String> deleteTask(@RequestParam Long taskId, @RequestParam Long userId) {
         try {
             taskService.deleteTask(taskId, userId);
-        } catch (AuthenticationException e) {
-            return new ResponseEntity<>("Authentication problem.", HttpStatus.FORBIDDEN);
+        } catch (UserNotAuthenticatedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (TaskNotFoundException e) {
-            return new ResponseEntity<>("Can't find task to remove.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>("Task was successfully removed.", HttpStatus.OK);
-    }
-
-    private boolean validateTask(Task todoTask) {
-        if (todoTask == null || todoTask.getTaskId() == null || todoTask.getTaskState() == null
-                || todoTask.getDescription() == null || todoTask.getDeadline() == null) {
-            return false;
-        }
-        return true;
     }
 
 }

@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.stereotype.Repository;
 import todoapp.com.todoapplication.model.Task;
 
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -16,13 +17,16 @@ public class TaskDaoImpl implements ITaskDao {
     private HashOperations<String, Integer, Task> hashOperations;
 
     @Override
-    public void saveTask(Task task) {
+    public Task saveTask(Task task) {
         hashOperations.putIfAbsent(hashReference, Math.toIntExact(task.getTaskId()), task);
+        return task;
+
     }
 
     @Override
-    public void updateTask(Task task) {
+    public Task updateTask(Task task) {
         hashOperations.put(hashReference, Math.toIntExact(task.getTaskId()), task);
+        return task;
     }
 
     @Override
@@ -39,4 +43,13 @@ public class TaskDaoImpl implements ITaskDao {
     public void deleteTask(Integer taskId) {
         hashOperations.delete(hashReference, taskId);
     }
+
+    @Override
+    public void deleteAllTasks() {
+        List<Long> tasksId = getAllTasks().values().stream().map(Task::getTaskId).toList();
+        for (long taskId : tasksId) {
+            deleteTask(Math.toIntExact(taskId));
+        }
+    }
+
 }

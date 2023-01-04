@@ -1,0 +1,167 @@
+openapi: 3.0.3
+info:
+  title: Swagger TODO Task - OpenAPI 3.0
+  description: |-
+    This is a sample Todo Tasks application Server based on the OpenAPI 3.0 specification.
+  contact:
+    email: vladdemyan1@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+servers:
+  - url: localhost:8080/todo-service/v1
+tags:
+  - name: task
+    description: Everything about your task
+paths:
+  /update-task:
+    put:
+      tags:
+        - task
+      summary: Update an existing TODO task
+      description: Update an existing task by task Id
+      operationId: updateTask
+      requestBody:
+        description: Update an existing task in the TODO list
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Validation exception
+        '403':
+          description: Authentification exception
+        '404':
+          description: Task not found
+  /create-task:
+    post:
+      tags:
+        - task
+      summary: Add a new task to the TODO list
+      description: Add a new task to the TODO list
+      operationId: createTask
+      requestBody:
+        description: Create a new task
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Validation exception
+        '403':
+          description: Authentification exception
+        '409':
+          description: Task already exists
+  /task/list:
+    get:
+      tags:
+        - task
+      summary: Finds all TODO Tasks
+      description: All tasks that are currently in the TODO list are returned.
+      operationId: findAllTasks
+      parameters:
+        - name: userId
+          in: query
+          description: User id value that needs to be considered for auth
+          required: true
+          explode: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '403':
+          description: Authentification exception
+        '500':
+          description: Internal error.
+  /task/remove-task:
+    delete:
+      tags:
+        - task
+      summary: Deletes a task
+      description: delete a task
+      operationId: deleteTask
+      parameters:
+        - name: userId
+          in: query
+          description: User id values that need to be considered for auth
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: taskId
+          in: query
+          description: Task id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '403':
+          description: Authentification exception
+        '404':
+          description: Task not found
+components:
+  schemas:
+    Task:
+      required:
+        - taskId
+        - userId
+        - description
+        - deadline
+        - taskState
+      type: object
+      properties:
+        taskId:
+          type: integer
+          format: int64
+          example: 1
+        userId:
+          type: integer
+          format: int64
+          example: 1
+        description:
+          type: string
+          example: Test Task 1
+        deadline:
+          type: string
+          example: 2022-12-30
+        taskState:
+          type: string
+          description: task status in the list
+          enum:
+            - TODO
+            - IN_PROGRESS
+            - DONE
+
+  requestBodies:
+    Task:
+      description: Task object that needs to be added to the list
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Task'

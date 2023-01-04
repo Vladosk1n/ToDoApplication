@@ -1,6 +1,7 @@
 package todoapp.com.todoapplication;
 
 import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ class ContextLoadingTest {
 
     @Test
     void contextLoads() {
-        //to test that context is creating our controller
+        //to test that context is indeed creating our controller
         assertThat(controller).isNotNull();
     }
 

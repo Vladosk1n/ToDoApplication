@@ -1,10 +1,10 @@
 package todoapp.com.todoapplication.exceptions;
 
-public class TaskNotFoundException extends Exception {
+public class UserNotAuthenticatedException extends Exception {
 
     @Override
     public String getMessage() {
-        return "This task can't be found.";
+        return "Authentication problem.";
     }
 
 }
