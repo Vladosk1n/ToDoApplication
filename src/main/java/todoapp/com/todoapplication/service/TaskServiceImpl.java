@@ -8,8 +8,12 @@ import todoapp.com.todoapplication.dao.ITaskDao;
 import todoapp.com.todoapplication.exceptions.*;
 import todoapp.com.todoapplication.model.Task;
 
+import java.util.logging.Logger;
+
 @Service
 public class TaskServiceImpl implements ITaskService {
+
+    static Logger log = Logger.getLogger(TaskServiceImpl.class.getName());
 
     @Autowired
     private ITaskDao taskDao;
@@ -82,18 +86,24 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     private boolean checkIfTaskAlreadyExists(Long taskId) {
+        log.info("Checking if task already exists: taskId= " + taskId);
         return taskDao.getOneTask(Math.toIntExact(taskId)) != null;
     }
 
     private void userAuthentication(Long userId) throws UserNotAuthenticatedException {
+        log.info("Authenticating of user: userId= " + userId);
+
         if (userId == null) {
+            log.warning("User authentication has failed.");
             throw new UserNotAuthenticatedException();
         }
     }
 
     private boolean validateTask(Task todoTask) {
-        if (todoTask == null || todoTask.getTaskId() == null || todoTask.getTaskState() == null
-                || todoTask.getDescription() == null || todoTask.getDeadline() == null) {
+        log.info("Validating the task: taskId= " + todoTask.getTaskId());
+
+        if (todoTask.getTaskId() == null || todoTask.getTaskState() == null || todoTask.getDescription() == null || todoTask.getDeadline() == null) {
+            log.warning("Task validation has failed.");
             return false;
         }
         return true;

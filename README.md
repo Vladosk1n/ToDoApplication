@@ -24,7 +24,7 @@ Checkout the project from the GitHub link.
 Make sure you have jdk 17 installed and set as the project and compile language.
 JDK can be downloaded from: https://openjdk.org/projects/jdk/17/
 
-This application runs on default Spring Boot server on your local machine so there should be no need to adjust anything to the Application Runner configuration.
+This application runs on default Spring Boot server on your local machine so there should be no need to adjust anything to the Application Runner configuration. Use default localhost:8080.
 
 For installing Redis please follow: https://redis.io/docs/getting-started/
 

@@ -12,7 +12,7 @@ import java.util.Date;
 public class ControllerExceptionHandler {
 
     @ExceptionHandler(RequestInputValidationException.class)
-    public ResponseEntity<ErrorMessage> resourceNotFoundException(RequestInputValidationException ex) {
+    public ResponseEntity<ErrorMessage> resourceInvalidException(RequestInputValidationException ex) {
         ErrorMessage message = new ErrorMessage(
                 HttpStatus.BAD_REQUEST.value(),
                 new Date(),

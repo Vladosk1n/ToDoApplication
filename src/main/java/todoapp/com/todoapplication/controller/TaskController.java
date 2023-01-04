@@ -7,20 +7,15 @@ import org.springframework.web.bind.annotation.*;
 import todoapp.com.todoapplication.model.Task;
 import todoapp.com.todoapplication.service.ITaskService;
 
-import java.util.logging.Logger;
-
 @RestController
 @RequestMapping("/todo-service/v1")
 public class TaskController {
-
-    static Logger log = Logger.getLogger(TaskController.class.getName());
 
     @Autowired
     private ITaskService taskService;
 
     @PostMapping("/create-task")
     public ResponseEntity<String> createTask(@RequestBody Task todoTask) {
-        //TODO: add log info and log errors
         return new ResponseEntity<>(taskService.saveTask(todoTask), HttpStatus.CREATED);
     }
 
